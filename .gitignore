@@ -1,0 +1,7 @@
+node_modules/
+.env
+cache/
+out/
+broadcast/
+__pycache__/
+*.log

@@ -1,0 +1,29 @@
+{
+ "checked_at": "2026-11-13T11:05:25Z",
+ "chain_id": "8453 (verified via eth_chainId)",
+ "total_tokens": 348,
+ "minted": 72,
+ "priced": 12,
+ "minted_unpriced": 60,
+ "priced_symbols": [
+  "CRCLc",
+  "TSLAc",
+  "GOOGLc",
+  "SNDKc",
+  "MSTRc",
+  "INTCc",
+  "NVDAc",
+  "SPCXc",
+  "METAc",
+  "MSFTc",
+  "AAPLc",
+  "AMZNc"
+ ],
+ "aapl_feed_check": {
+  "address": "0x787f13dEa48Db0897CbCDD985de77809D837F988",
+  "description": "Coinbase AAPL",
+  "answer_usd": 356.39702621,
+  "api_nav": 356.39702621,
+  "updated_age_min": 459.92725072701774
+ }
+}
