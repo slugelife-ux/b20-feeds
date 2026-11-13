@@ -25,7 +25,7 @@ Numbers live-verified 2026-11-13 against the issuer's API and Base mainnet (chai
 - **Stage B:** testnet deployment (Base Sepolia) + cron pusher, stable-days gate.
 - **Stage C:** publish repo + SDK live.
 - **Stage D (owner-gated):** mainnet dry-run package (top tail symbols, gas math, timelock/multisig proposal) → owner approves and signs → pusher on its own VPS → 30 stable days.
-- **Stage E:** paid tiers (alerts, history API, feed subscriptions). Reads stay free forever.
+- **Stage E:** paid tiers (alerts, history API, feed subscriptions). Reads stay free forever. Optional delivery rail: x402 per-call billing — 99.2% of x402 endpoints settle on Base (ChainReport, 2026-11-12), and no tokenized-equity price endpoint exists on x402 yet; demand is thin (738 endpoints with 10+ payers of 33,901), so it's a cheap add-on, not the business.
 
 ## Who needs this today
 
