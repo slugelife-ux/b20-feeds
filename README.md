@@ -21,7 +21,7 @@ Numbers live-verified 2026-11-13 against the issuer's API and Base mainnet (chai
 
 ## Build plan
 
-- **Stage A:** Foundry contracts + unit/invariant tests; local e2e on an anvil fork of Base mainnet (B20 precompiles are live on the fork): quote → multiplier → push → readback equality.
+- **Stage A:** Foundry contracts + unit/invariant tests; B20 behavior tested against Base's own toolchain: `base-anvil`/`base-forge` (Base's Foundry fork) runs the B20 precompiles in-process, so multiplier reads are tested against the real precompile behavior, not a mock. Verified 2026-11-13: stock anvil forking Base mainnet cannot execute B20 precompile calls (`OpcodeNotFound`); reads against the live public RPC work and are part of e2e. Quote → multiplier → push → readback equality proven against real mainnet state via RPC + local precompile tests.
 - **Stage B:** testnet deployment (Base Sepolia) + cron pusher, stable-days gate.
 - **Stage C:** publish repo + SDK live.
 - **Stage D (owner-gated):** mainnet dry-run package (top tail symbols, gas math, timelock/multisig proposal) → owner approves and signs → pusher on its own VPS → 30 stable days.
