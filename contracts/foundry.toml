@@ -1,0 +1,15 @@
+[profile.default]
+src = "src"
+out = "out"
+test = "test"
+script = "script"
+solc = "0.8.26"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+# Base precompile testing: run with base-forge (Base's Foundry fork) so the
+# B20 precompiles (factory, tokens) are live in-process. Stock forge runs the
+# same suite against mocks only.
+[rpc_endpoints]
+base = "https://mainnet.base.org"
+vibes = "https://rpc.vibes.base.org/"

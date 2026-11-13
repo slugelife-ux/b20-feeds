@@ -8,7 +8,7 @@ Numbers live-verified 2026-11-13 against the issuer's API and Base mainnet (chai
 
 ## Status
 
-**Research complete. Build not started.** This repo is the landing zone: the gap is counted, the design is decided, the plan is below. Contracts, pusher, checker, and status site get built here.
+**Stage A complete (2026-11-13).** Contracts built and tested — 11/11 tests pass on both stock forge (mock path) and base-forge with the real B20 precompiles in-process. Health checker verified against all 10 known Chainlink Coinbase feeds on mainnet (onchain answer = issuer API nav_price to the last digit, 10/10). Position math verified against 3 real holders found from Transfer logs (`balanceOfUI` equality, multiplier ≠ 1 included). The free SDK is live at github.com/slugelife-ux/b20-kit. Testnet deployment is Stage B (owner gate).
 
 ## What gets built
 
@@ -41,15 +41,26 @@ Numbers live-verified 2026-11-13 against the issuer's API and Base mainnet (chai
 - Staleness is the reader's job (as with Chainlink): check `block.timestamp - updatedAt`. Feeds hold last value when US markets are closed — by design, matching the covered feeds' behavior.
 - Not affiliated with Coinbase or Base.
 
-## Repository layout (planned)
+## Repository layout
 
 ```
-contracts/   Foundry: FeedRegistry, feed proxy, tests, fork e2e scripts
-pusher/      deviation-gated batch pusher (cron)
-tools/       b20_price_check.py, position verifier
-web/         static status site
+contracts/   Foundry: B20FeedRegistry + B20FeedProxy, tests (11 passing on
+             both toolchains), base-std and forge-std vendored in lib/
+tools/       b20_price_check.py (feed health), b20_position_check.py
+             (holder verification), run artifacts as JSON
 data/        gap counts and verification artifacts
+pusher/      Stage B: deviation-gated batch pusher (cron)
+web/         Stage C: static status site
 ```
+
+The Base-native design upgrade over the Robinhood Chain oracle: the pusher
+supplies only the underlying share price, and the registry reads the token's
+live `uiMultiplier` onchain inside the push itself — a stale multiplier in the
+pusher is structurally impossible. The multiplier read uses low-level
+staticcall and tries both the ERC-8056 alias (`uiMultiplier()`, 0xa60bf13d)
+and the canonical B20 name (`multiplier()`, 0x1b3ed722), so the same contract
+works on mainnet and dev chains; a token that answers neither is skipped
+(`FeedPushFailed`) and never blocks the batch.
 
 ## License
 

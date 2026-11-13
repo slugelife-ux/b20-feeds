@@ -1,0 +1,217 @@
+{
+ "checked_at": "2026-11-13T12:11:55Z",
+ "session": "premarket",
+ "quote_source": "Yahoo Finance chart API (delayed)",
+ "results": [
+  {
+   "symbol": "AAPL",
+   "feed_address": "0x787f13dEa48Db0897CbCDD985de77809D837F988",
+   "feed_answer_usd": 356.39702621,
+   "quote_usd": 354.88,
+   "quote_prev_close": 344.17,
+   "multiplier": 1.0,
+   "expected_usd": 354.88,
+   "deviation_pct": 0.4274758256311946,
+   "nav_price_api": 356.39702621,
+   "nav_updated_at": "2026-11-13T03:25:30Z",
+   "round_age_min": 526.3827467918396,
+   "round": {
+    "roundId": 36893488147419103783,
+    "answer": 35639702621,
+    "startedAt": 1794540317,
+    "updatedAt": 1794540330,
+    "answeredInRound": 36893488147419103783
+   },
+   "pass": true
+  },
+  {
+   "symbol": "AMZN",
+   "feed_address": "0x06A8E4b3aBB3B7543d8396FB2B763d22820cB295",
+   "feed_answer_usd": 269.875,
+   "quote_usd": 267.44,
+   "quote_prev_close": 260.21,
+   "multiplier": 1.0,
+   "expected_usd": 267.44,
+   "deviation_pct": 0.910484594675442,
+   "nav_price_api": 269.875,
+   "nav_updated_at": "2026-11-13T11:43:22Z",
+   "round_age_min": 28.520562307039896,
+   "round": {
+    "roundId": 36893488147419104057,
+    "answer": 26987500000,
+    "startedAt": 1794570189,
+    "updatedAt": 1794570202,
+    "answeredInRound": 36893488147419104057
+   },
+   "pass": true
+  },
+  {
+   "symbol": "GOOGL",
+   "feed_address": "0x5bF49E0ffA937CE2FfF033c739aD7C634c4D34F2",
+   "feed_answer_usd": 301.56368242,
+   "quote_usd": 298.7,
+   "quote_prev_close": 282.57,
+   "multiplier": 1.0003771186767842,
+   "expected_usd": 298.81264534875544,
+   "deviation_pct": 0.9206561750536841,
+   "nav_price_api": 301.56368242,
+   "nav_updated_at": "2026-11-13T09:37:44Z",
+   "round_age_min": 154.15751835505168,
+   "round": {
+    "roundId": 36893488147419104007,
+    "answer": 30156368242,
+    "startedAt": 1794562652,
+    "updatedAt": 1794562664,
+    "answeredInRound": 36893488147419104007
+   },
+   "pass": true
+  },
+  {
+   "symbol": "META",
+   "feed_address": "0x6526aE6797A76123638b863AeE4dD27Ba4E4b27D",
+   "feed_answer_usd": 624.8059978,
+   "quote_usd": 623.61,
+   "quote_prev_close": 605.08,
+   "multiplier": 1.0003137922895982,
+   "expected_usd": 623.8056840097163,
+   "deviation_pct": 0.1603566328305742,
+   "nav_price_api": 624.8059978,
+   "nav_updated_at": "2026-11-13T11:40:45Z",
+   "round_age_min": 31.14584602912267,
+   "round": {
+    "roundId": 36893488147419104547,
+    "answer": 62480599780,
+    "startedAt": 1794570033,
+    "updatedAt": 1794570045,
+    "answeredInRound": 36893488147419104547
+   },
+   "pass": true
+  },
+  {
+   "symbol": "MSFT",
+   "feed_address": "0xeB10A6c9aa7E537aEd766C08c35Dae35B321b18c",
+   "feed_answer_usd": 516.895,
+   "quote_usd": 523.0,
+   "quote_prev_close": 535.93,
+   "multiplier": 1.0,
+   "expected_usd": 523.0,
+   "deviation_pct": 1.1673040152963705,
+   "nav_price_api": 516.895,
+   "nav_updated_at": "2026-11-13T12:09:40Z",
+   "round_age_min": 2.2361411372820537,
+   "round": {
+    "roundId": 36893488147419103949,
+    "answer": 51689500000,
+    "startedAt": 1794571767,
+    "updatedAt": 1794571780,
+    "answeredInRound": 36893488147419103949
+   },
+   "pass": true
+  },
+  {
+   "symbol": "MSTR",
+   "feed_address": "0xB3cE282CD188b35DA0E38D8Bc7d58e33173D202a",
+   "feed_answer_usd": 112.79,
+   "quote_usd": 114.41,
+   "quote_prev_close": 129.3,
+   "multiplier": 1.0,
+   "expected_usd": 114.41,
+   "deviation_pct": 1.415960143344105,
+   "nav_price_api": 112.79,
+   "nav_updated_at": "2026-11-13T11:32:46Z",
+   "round_age_min": 39.13993395169576,
+   "round": {
+    "roundId": 36893488147419107301,
+    "answer": 11279000000,
+    "startedAt": 1794569553,
+    "updatedAt": 1794569566,
+    "answeredInRound": 36893488147419107301
+   },
+   "pass": true
+  },
+  {
+   "symbol": "NVDA",
+   "feed_address": "0x04689a41629776563E6822F76f2e57D148d28513",
+   "feed_answer_usd": 169.54615654,
+   "quote_usd": 166.19,
+   "quote_prev_close": 181.6,
+   "multiplier": 1.0005379395763694,
+   "expected_usd": 166.27940017819682,
+   "deviation_pct": 1.964618803232563,
+   "nav_price_api": 169.54615654,
+   "nav_updated_at": "2026-11-13T12:01:59Z",
+   "round_age_min": 9.926999620596568,
+   "round": {
+    "roundId": 36893488147419104490,
+    "answer": 16954615654,
+    "startedAt": 1794571307,
+    "updatedAt": 1794571319,
+    "answeredInRound": 36893488147419104490
+   },
+   "pass": true
+  },
+  {
+   "symbol": "SNDK",
+   "feed_address": "0x388b0dC46C0Fb05A74BeE0994fa5b02c6Fcca2eA",
+   "feed_answer_usd": 942.795,
+   "quote_usd": 937.46,
+   "quote_prev_close": 806.43,
+   "multiplier": 1.0,
+   "expected_usd": 937.46,
+   "deviation_pct": 0.5690909478804346,
+   "nav_price_api": 942.795,
+   "nav_updated_at": "2026-11-13T12:00:03Z",
+   "round_age_min": 11.864127167065938,
+   "round": {
+    "roundId": 36893488147419107835,
+    "answer": 94279500000,
+    "startedAt": 1794571190,
+    "updatedAt": 1794571203,
+    "answeredInRound": 36893488147419107835
+   },
+   "pass": true
+  },
+  {
+   "symbol": "SPCX",
+   "feed_address": "0x6A634B235903C4ad6376892180d6fF8612e3Fa68",
+   "feed_answer_usd": 140.541,
+   "quote_usd": 139.94,
+   "quote_prev_close": 123.62,
+   "multiplier": 1.0,
+   "expected_usd": 139.94,
+   "deviation_pct": 0.4294697727597535,
+   "nav_price_api": 140.541,
+   "nav_updated_at": "2026-11-13T11:19:05Z",
+   "round_age_min": 52.834515539805096,
+   "round": {
+    "roundId": 36893488147419105807,
+    "answer": 14054100000,
+    "startedAt": 1794568732,
+    "updatedAt": 1794568745,
+    "answeredInRound": 36893488147419105807
+   },
+   "pass": true
+  },
+  {
+   "symbol": "TSLA",
+   "feed_address": "0xFaf869185383a24F8cb00e27BdA6b63B9905DCb4",
+   "feed_answer_usd": 402.387,
+   "quote_usd": 397.45,
+   "quote_prev_close": 343.69,
+   "multiplier": 1.0,
+   "expected_usd": 397.45,
+   "deviation_pct": 1.242168826267458,
+   "nav_price_api": 402.387,
+   "nav_updated_at": "2026-11-13T12:03:40Z",
+   "round_age_min": 8.254994146029155,
+   "round": {
+    "roundId": 36893488147419104616,
+    "answer": 40238700000,
+    "startedAt": 1794571406,
+    "updatedAt": 1794571420,
+    "answeredInRound": 36893488147419104616
+   },
+   "pass": true
+  }
+ ]
+}

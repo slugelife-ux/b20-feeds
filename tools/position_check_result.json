@@ -1,0 +1,54 @@
+{
+ "checked_at": "2026-11-13T12:19:10Z",
+ "positions": [
+  {
+   "token": "AAPLc",
+   "token_address": "0xb200000000000000000000C2e324d24d7eEcd1fb",
+   "holder": "0xf5fcb9cdafce67d50afef298f88e709d2b946ba6",
+   "raw_balance": 44496909911,
+   "ui_multiplier_wad": 1000000000000000000,
+   "computed_shares": 44496909911,
+   "balanceOfUI": 44496909911,
+   "window": [
+    "0x3645862",
+    "0x3646032"
+   ],
+   "logs_scanned": 23,
+   "feed_answer_usd": 356.39702621,
+   "usd_value": 158585.66367814675
+  },
+  {
+   "token": "NVDAc",
+   "token_address": "0xb20000000000000000000078ee7ce2fE4908108C",
+   "holder": "0xf668e21993f0acd7ab00bb1cfbaed0df28a3c8ec",
+   "raw_balance": 479356090679,
+   "ui_multiplier_wad": 1000537939576369481,
+   "computed_shares": 479613955291,
+   "balanceOfUI": 479613955291,
+   "window": [
+    "0x3645865",
+    "0x3646035"
+   ],
+   "logs_scanned": 203,
+   "feed_answer_usd": 168.6956993,
+   "usd_value": 808653.1093080812
+  },
+  {
+   "token": "GOOGLc",
+   "token_address": "0xb2000000000000000000002D0BA3164cc74f58B7",
+   "holder": "0x9e683f64917a6e1ca9f09c3eba9008bcdf9e0999",
+   "raw_balance": 2705813932,
+   "ui_multiplier_wad": 1000377118676784179,
+   "computed_shares": 2706834344,
+   "balanceOfUI": 2706834344,
+   "window": [
+    "0x3645867",
+    "0x3646037"
+   ],
+   "logs_scanned": 145,
+   "feed_answer_usd": 301.56368242,
+   "usd_value": 8159.752132772595
+  }
+ ],
+ "math_ok": true
+}

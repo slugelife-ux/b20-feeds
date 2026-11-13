@@ -1,0 +1,284 @@
+name: Base Std Fork Tests
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  BASE_REF: main
+  # Use the same patched Foundry revision as base/base's hardfork matrix.
+  BASE_ANVIL_SHA: 541626fd743b1fddc1186f30d8b5f7f3121b227f
+  # The current base-std suite specifies Denim behavior; bare --base defaults to Cobalt.
+  BASE_UPGRADE: denim
+  FOUNDRY_BASE: denim
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  fork-tests:
+    name: Base Std Fork Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # Advisory: base-std is the spec forerunner. Divergences mean base/base needs to catch up,
+    # not that base-std is wrong. This job surfaces failures without blocking PR merges.
+    continue-on-error: true
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+
+      - name: Checkout base-std
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Free disk space
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
+
+      - name: Install native dependencies
+        uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
+        with:
+          packages: libsqlite3-dev clang libclang-dev llvm llvm-dev build-essential pkg-config protobuf-compiler
+          version: 1.4
+
+      - name: Install Rust
+        shell: bash
+        run: |
+          rustup default stable
+          rustup show active-toolchain
+
+      - name: Set LIBCLANG_PATH
+        shell: bash
+        run: |
+          LLVM_BIN=$(command -v llvm-config || ls /usr/bin/llvm-config-* 2>/dev/null | sort -V | tail -1)
+          LLVM_VERSION=$($LLVM_BIN --version | cut -d. -f1)
+          echo "LIBCLANG_PATH=/usr/lib/llvm-${LLVM_VERSION}/lib" >> "$GITHUB_ENV"
+
+      - name: Install mold
+        uses: rui314/setup-mold@725a8794d15fc7563f59595bd9556495c0564878 # v1
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad # v0.0.9
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@50d5a8956f2e319df19e6b57539d7e2acb9f8c1e # v1.5.0
+        with:
+          version: stable
+
+      - name: Clone fork-test repositories
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          workdir="$RUNNER_TEMP/base-std-fork-tests"
+          rm -rf "$workdir"
+          mkdir -p "$workdir"
+
+          git clone --depth 1 --single-branch --branch "$BASE_REF" \
+            https://github.com/base/base.git "$workdir/base"
+
+          git clone --filter=blob:none --no-checkout \
+            https://github.com/base/base-anvil.git "$workdir/base-anvil"
+          git -C "$workdir/base-anvil" fetch --depth 1 origin "$BASE_ANVIL_SHA"
+          git -C "$workdir/base-anvil" checkout --detach FETCH_HEAD
+
+          actual_sha=$(git -C "$workdir/base-anvil" rev-parse HEAD)
+          if [ "$actual_sha" != "$BASE_ANVIL_SHA" ]; then
+            echo "::error::base-anvil checkout ($actual_sha) does not match pinned SHA ($BASE_ANVIL_SHA)"
+            exit 1
+          fi
+
+          echo "BASE_DIR=$workdir/base" >> "$GITHUB_ENV"
+          echo "BASE_ANVIL_DIR=$workdir/base-anvil" >> "$GITHUB_ENV"
+          echo "BASE_SHA=$(git -C "$workdir/base" rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "BASE_STD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Build patched base-anvil binaries
+        shell: bash
+        env:
+          CARGO_PROFILE_RELEASE_LTO: "false"
+          RUSTC_WRAPPER: "sccache"
+          SCCACHE_GHA_ENABLED: "true"
+        run: |
+          set -euo pipefail
+
+          cd "$BASE_ANVIL_DIR"
+          rustup show active-toolchain
+          cargo \
+            --config "patch.\"https://github.com/base/base.git\".base-common-precompiles.path=\"$BASE_DIR/crates/common/precompiles\"" \
+            --config "patch.\"https://github.com/base/base.git\".base-common-chains.path=\"$BASE_DIR/crates/common/chains\"" \
+            build --release --no-default-features --features anvil/cli -p anvil -p forge
+
+          "$BASE_ANVIL_DIR/target/release/anvil" --version
+          "$BASE_ANVIL_DIR/target/release/forge" --version
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.13'
+
+      - name: Set up fork-test runner venv
+        shell: bash
+        # setup-python makes python3 == 3.13; make python-check enforces it.
+        run: make smoke-setup PYTHON=python3
+
+      - name: Run base-std fork tests
+        id: fork_tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Capture both pipeline statuses before another command overwrites PIPESTATUS.
+          set +e
+          ANVIL_BIN="$BASE_ANVIL_DIR/target/release/anvil" \
+            FORGE_BIN="$BASE_ANVIL_DIR/target/release/forge" \
+            ANVIL_LOG="$RUNNER_TEMP/base-std-anvil.log" \
+            make fork-tests 2>&1 | tee "$RUNNER_TEMP/fork-test-output.txt"
+          pipeline_status=("${PIPESTATUS[@]}")
+          set -e
+          echo "fork_tests_exit=${pipeline_status[0]}" >> "$GITHUB_OUTPUT"
+          if [ "${pipeline_status[0]}" -ne 0 ]; then
+            exit "${pipeline_status[0]}"
+          fi
+          exit "${pipeline_status[1]}"
+        continue-on-error: true
+
+      - name: Summarize fork test results
+        id: fork_results
+        if: always()
+        shell: bash
+        env:
+          FORK_TESTS_EXIT: ${{ steps.fork_tests.outputs.fork_tests_exit }}
+          FORK_TESTS_OUTCOME: ${{ steps.fork_tests.outcome }}
+        run: |
+          output="$RUNNER_TEMP/fork-test-output.txt"
+          # Forge prints failed tests again at the end; count only the final suite totals.
+          totals=""
+          if [ -f "$output" ]; then
+            totals=$(sed 's/\x1B\[[0-9;]*m//g' "$output" \
+              | sed -nE 's/^Ran [0-9]+ test suites? in .*: ([0-9]+) tests passed, ([0-9]+) failed, ([0-9]+) skipped .*$/\1 \2 \3/p' \
+              | tail -1)
+          fi
+          read -r passed failed skipped <<< "${totals:-0 0 0}"
+          status=failure
+          if [ -z "$totals" ] || [ "$((passed + failed + skipped))" -eq 0 ]; then
+            status=did-not-run
+          elif [ "$FORK_TESTS_EXIT" = "0" ] && [ "$FORK_TESTS_OUTCOME" = "success" ] && [ "$failed" -eq 0 ]; then
+            status=success
+          fi
+          {
+            echo "passed=$passed"
+            echo "failed=$failed"
+            echo "skipped=$skipped"
+            echo "status=$status"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Fork Test Results"
+            echo ""
+            echo "- Base upgrade: \`$BASE_UPGRADE\` (Forge: \`$FOUNDRY_BASE\`)"
+            echo "- base/base: \`${BASE_SHA:-unknown}\`"
+            echo "- base-anvil: \`$BASE_ANVIL_SHA\`"
+            echo "- base-std: \`${BASE_STD_SHA:-$GITHUB_SHA}\`"
+            echo "- Test command exit: \`${FORK_TESTS_EXIT:-not available}\`"
+            echo ""
+            if [ "$status" = "did-not-run" ]; then
+              echo "❌ Fork tests did not complete a non-empty suite. Check the workflow logs for build, setup, or execution errors."
+            elif [ "$status" = "success" ]; then
+              echo "✅ **${passed}** passed, **${failed}** failed, **${skipped}** skipped against Denim."
+            else
+              echo "⚠️ Fork test run failed: **${passed}** passed, **${failed}** failed, **${skipped}** skipped."
+              echo ""
+              echo "Failures can indicate a divergence from the Denim spec or a harness error; check the logs."
+              echo "base-std PRs are not blocked by this check."
+              echo ""
+              echo "### Failing tests"
+              echo '```'
+              grep '\[FAIL' "$output" | sed 's/\x1B\[[0-9;]*m//g' | sort -u || true
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment fork test results on PR
+        if: github.event_name == 'pull_request' && always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PASSED: ${{ steps.fork_results.outputs.passed }}
+          FAILED: ${{ steps.fork_results.outputs.failed }}
+          SKIPPED: ${{ steps.fork_results.outputs.skipped }}
+          RESULT_STATUS: ${{ steps.fork_results.outputs.status }}
+        run: |
+          output="$RUNNER_TEMP/fork-test-output.txt"
+          passed=${PASSED:-0}
+          failed=${FAILED:-0}
+          skipped=${SKIPPED:-0}
+          marker="<!-- fork-test-results -->"
+
+          if [ "${RESULT_STATUS:-did-not-run}" = "did-not-run" ]; then
+            body="${marker}
+          ### ❌ Fork tests did not complete
+          No completed, non-empty suite was recorded. Check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for build, setup, or execution errors."
+          elif [ "$RESULT_STATUS" = "success" ]; then
+            body="${marker}
+          ### ✅ Fork tests: ${passed} passed, ${failed} failed, ${skipped} skipped
+          The completed Denim suite passed. Skipped tests were not validated."
+          else
+            # Extract test name and full error for each failure, deduplicated
+            failing=$(grep '\[FAIL' "$output" \
+              | sed 's/\x1B\[[0-9;]*m//g' \
+              | sed 's/^\[FAIL: \(.*\)\] \(.*\) (runs.*$/- **\2**: `\1`/' \
+              | sort -u || true)
+            body="${marker}
+          ### ⚠️ Fork test run failed: ${passed} passed, ${failed} failed, ${skipped} skipped
+
+          Failures can indicate a divergence from the Denim spec or a harness error; check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}). This check is advisory and does not block merging.
+
+          <details>
+          <summary>Failing tests</summary>
+
+          ${failing}
+
+          </details>"
+          fi
+
+          pr="${{ github.event.pull_request.number }}"
+          repo="${{ github.repository }}"
+
+          # Find existing comment with our marker and update it, or post a new one
+          existing_id=$(gh api "repos/${repo}/issues/${pr}/comments" \
+            --jq ".[] | select(.body | startswith(\"${marker}\")) | .id" \
+            | head -1)
+
+          if [ -n "$existing_id" ]; then
+            gh api "repos/${repo}/issues/comments/${existing_id}" \
+              -X PATCH --field body="$body" > /dev/null
+          else
+            gh api "repos/${repo}/issues/${pr}/comments" \
+              --field body="$body" > /dev/null
+          fi
+
+      - name: Upload anvil log
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: base-std-anvil-log
+          path: ${{ runner.temp }}/base-std-anvil.log
+          if-no-files-found: ignore
